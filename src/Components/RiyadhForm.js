@@ -10,19 +10,30 @@ import { Input, Timepicker, initTE } from "tw-elements";
 
 const RIYADH_INIT_URL =
   "https://us-central1-arsann-f26bb.cloudfunctions.net/getViaRiyadhServices";
+const RIYADH_BOOKING_URL = "https://us-central1-arsann-f26bb.cloudfunctions.net/initiateBookingPayment"
 function RiyadhForm() {
   const [cartItem, setCartItem] = useState([]);
   const [services, setServices] = useState([]);
+  const [isLoading,setIsLoading] = useState(false)
   useEffect(() => {
     (async () => {
+      setIsLoading(true)
       const { data } = await axios.post(RIYADH_INIT_URL, {});
       setServices(data.data);
+      setIsLoading(false)
     })();
   }, []);
 
   const [totalPrice, setTotalPrice] = useState(0);
-  const [buttonDisabled, setButtonDisabled] = useState(false);
-
+  const [form,setForm] = useState({
+    name: '',
+    mobileNumber: '',
+    arrivalTime: '',
+    gate: ''
+  })
+  useEffect(() => {
+    console.log('form',form)
+  },[form])
   const addToCart = (item) => {
     setCartItem([...cartItem, item]);
 
@@ -37,8 +48,6 @@ function RiyadhForm() {
   };
 
   const removeFromCart = (index) => {
-    setButtonDisabled(false);
-
     const updatedCart = [
       ...cartItem.slice(0, index),
       ...cartItem.slice(index + 1),
@@ -55,7 +64,25 @@ function RiyadhForm() {
     setServices(newServices);
     setCartItem(updatedCart);
   };
-
+  
+  const bookPackage = async () => {
+    setIsLoading(true)
+    const body = {
+      amount: totalPrice,
+      bookingData: {
+        gate: form.gate,
+        name: form.name,
+        phone: form.mobileNumber,
+        services: cartItem
+      },
+      time: new Date().getTime()
+    }
+    const result = await axios.post(RIYADH_BOOKING_URL,body)
+    if(result.data.redirectUrl) {
+      window.location.replace(result.data.redirectUrl);
+    }
+    setIsLoading(false)
+  }
   useEffect(() => {
     const total = cartItem.reduce((acc, item) => acc + item.service_price, 0);
     setTotalPrice(total);
@@ -65,6 +92,7 @@ function RiyadhForm() {
       <div className="backgroundImg ">
         <img src={backgroundImg} alt="" />
       </div>
+      {isLoading && <div className="loading"></div>}
       <div className="background">
         <div className="main-container">
           <div className="form-cart-div flex justify-end w-95">
@@ -87,6 +115,8 @@ function RiyadhForm() {
                       name="name"
                       className="border-b border-gray-500 w-full px-4 py-2 bg-[#272727] text-white border border-gray-400 rounded-md focus:outline-none focus:ring focus:border-blue-300"
                       required
+                      value={form.name}
+                      onChange={(e) => setForm({...form, name: e.target.value})}
                     />
                   </div>
 
@@ -108,6 +138,8 @@ function RiyadhForm() {
                         placeholder="Enter your phone number"
                         className="border-b border-gray-500 w-full px-4 py-2 bg-[#272727] text-white border border-gray-400 rounded-md focus:outline-none focus:ring focus:border-blue-300"
                         required
+                        value={form.mobileNumber}
+                        onChange={(e) => setForm({...form, mobileNumber: e.target.value})}
                       />
                     </div>
 
@@ -128,11 +160,14 @@ function RiyadhForm() {
                       name="option"
                       className="border-b border-gray-500 w-full px-4 py-2 bg-[#272727] text-white border rounded-md focus:outline-none focus:ring focus:border-blue-300 border-gray-400"
                       required
+                      onChange={(e) => setForm({...form,gate: e.target.value})}
+                      value={form.gate}
                     >
-                      <option value="">Select</option>
-                      <option value="option1">V1 - Main Entrance</option>
-                      <option value="option2">Option 2</option>
-                      <option value="option3">Option 3</option>
+                        <option option="V1 – Main Entrance">V1 – Main Entrance</option>
+                        <option option="V2 - Next to St. Regis Riyadh">V2 - Next to St. Regis Riyadh</option>
+                        <option option="V3 – Chi Spacca/Madeo">V3 – Chi Spacca/Madeo</option>
+                        <option option="V4 – Cinema/Ballroom">V4 – Cinema/Ballroom</option>
+                        <option option="V5 – Via Mercato">V5 – Via Mercato</option>
                     </select>
                   </div>
                   <div className="mb-4">
@@ -147,16 +182,13 @@ function RiyadhForm() {
                       data-te-input-wrapper-init
                     >
                       <input
-                        type="text"
+                        type="time"
                         className="peer block min-h-[auto] w-full rounded border-0 bg-transparent px-3 py-[0.32rem] leading-[1.6] outline-none transition-all duration-200 ease-linear focus:placeholder:opacity-100 peer-focus:text-primary data-[te-input-state-active]:placeholder:opacity-100 motion-reduce:transition-none dark:text-neutral-200 dark:placeholder:text-neutral-200 dark:peer-focus:text-primary [&:not([data-te-input-placeholder-active])]:placeholder:opacity-0"
                         id="form2"
+                        value={form.arrivalTime}
+                        onChange={(e) => setForm({...form, arrivalTime: e.target.value})}
                       />
-                      <label
-                        for="form2"
-                        className="pointer-events-none absolute left-3 top-0 mb-0 max-w-[90%] origin-[0_0] truncate pt-[0.37rem] leading-[1.6] text-neutral-500 transition-all duration-200 ease-out peer-focus:-translate-y-[0.9rem] peer-focus:scale-[0.8] peer-focus:text-primary peer-data-[te-input-state-active]:-translate-y-[0.9rem] peer-data-[te-input-state-active]:scale-[0.8] motion-reduce:transition-none dark:text-neutral-200 dark:peer-focus:text-primary"
-                      >
-                        Select a time
-                      </label>
+                      
                     </div>
                   </div>
                 </div>
@@ -248,7 +280,7 @@ function RiyadhForm() {
                   </div>
 
                   <div className="book-button  py-[0.7rem] flex justify-center pr-9">
-                    <button className="addToCart bg-[#D4B066] text-white rounded-[1rem] w-56 text-[0.9rem] py-[0.7rem] hover:text-black transition-color duration-300">
+                    <button className="addToCart bg-[#D4B066] text-white rounded-[1rem] w-56 text-[0.9rem] py-[0.7rem] hover:text-black transition-color duration-300" onClick={()=> bookPackage()}>
                       Book
                     </button>
                   </div>

@@ -53,8 +53,13 @@
 }
 .cart {
   width: 25%;
+  position: relative;
 }
 .form-cart-div {
-  width: 95%;
   gap: 1rem;
+}
+.total-container {
+  position: absolute;
+  bottom:10px;
+  padding-left: 1rem !important;
 }

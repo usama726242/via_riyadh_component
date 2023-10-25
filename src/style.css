@@ -51,6 +51,32 @@
   background-size: cover;
   background-position: center;
 }
+.rounded-pill-items-count {
+    background-color: #CDAB6A;
+    width: 6%;
+    margin-left: -7px;
+    margin-top: 7px;
+    border: 1px solid black;
+    border-radius: 50rem;
+
+    width: 24px;
+    border-radius: 50px;
+    padding: 10px 10px;
+
+    position: absolute;
+    background-color: #CDAB6A;
+    margin-left: 34px;
+    margin-top: 7px;
+    border: 1px solid black;
+    left: 25px;
+    height: 24px;
+    bottom: 10px;
+}
+.rounded-pill-items-count > span {
+    top: 0px;
+    position: absolute;
+    left: 7px;
+}
 
 .backgroundImg {
   margin-bottom: 0;
@@ -133,6 +159,15 @@
   .cart-container {
     display: none;
   }
+  .cart-container-mobile {
+    bottom: 46px;
+    border-radius: none;
+    border-radius: unset;
+    box-shadow: none;
+    height: 50%;
+    width: 100%;
+    position: fixed;
+  }
   /* DropUp */
 
   @media (min-width: 767px) and (max-width: 1600px) {
@@ -183,6 +218,15 @@
   }
   .cart-container {
     display: none;
+  }
+  .cart-container-mobile {
+    bottom: 46px;
+    border-radius: none;
+    border-radius: unset;
+    box-shadow: none;
+    height: 50%;
+    width: 100%;
+    position: fixed;
   }
   .span-carItem {
     background-color: #cdab6a;
@@ -517,7 +561,7 @@
     position: absolute;
     content: " ";
     top: 14px;
-    right: 2em;
+    right: 1em;
     width: 0px;
     height: 0;
     font-size: 28px;
@@ -582,4 +626,9 @@
 }
 body {
   font-family: "El Messiri", sans-serif;
+}
+
+.error-span {
+  display: block;
+  color: red;
 }

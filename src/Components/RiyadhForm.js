@@ -22,27 +22,21 @@ function RiyadhForm({ color }) {
     mobileNumber: false,
     gate: false,
   });
+  const [isDescriptionOpen,setIsDescription] = useState({})
 
   const [isMobileCartVisible, setIsMobileCartVisible] = useState(false);
 
-  useEffect(
-    () => {
-      (async () => {
-        setIsLoading(true);
-        const { data } = await axios.post(RIYADH_INIT_URL, {});
-        setServices(data.data);
-        setIsLoading(false);
-      })();
-    },
-    setTimeout(() => {}, 50000)
-  );
   // tailwind dropUp
 
   useEffect(() => {
     (async () => {
       setIsLoading(true);
       const { data } = await axios.post(RIYADH_INIT_URL, {});
-      console.log(data);
+      const servicesDesc = data.data.reduce((acc,curr) => {
+        acc = {...acc, [curr.s_id] :false}
+        return acc
+      },{})
+      setIsDescription(servicesDesc)
       setServices(data.data);
       setIsLoading(false);
     })();
@@ -61,10 +55,9 @@ function RiyadhForm({ color }) {
     gate: "",
   });
 
-  const [isServiceDescription, setIsServiceDescription] = useState(false);
 
-  const DescriptionOpener = () => {
-    setIsServiceDescription(!isServiceDescription);
+  const DescriptionOpener = (id) => {
+    setIsDescription({...isDescriptionOpen, [id]: !isDescriptionOpen[id]});
   };
   const addToCart = (item) => {
     setCartItem([...cartItem, item]);
@@ -296,13 +289,13 @@ function RiyadhForm({ color }) {
                         <div className="containerHead ">
                           <div
                             className={`service-heading ${
-                              isServiceDescription ? "bg-[#CDAB6A] " : ""
+                              isDescriptionOpen[service.s_id] ? "bg-[#CDAB6A] " : ""
                             }`}
                           >
                             <p className="font-semibold p-3">
                               {service.service_name}
                             </p>
-                            <button onClick={() => DescriptionOpener()}>
+                            <button onClick={() => DescriptionOpener(service.s_id)}>
                               <i
                                 class="fa fa-info"
                                 aria-hidden="true"
@@ -311,7 +304,7 @@ function RiyadhForm({ color }) {
                             </button>
                           </div>
                           <hr className="w-full border-t border-[#605E5E]" />
-                          {isServiceDescription && (
+                          {isDescriptionOpen[service.s_id] && (
                             <div className="serviceDescription">
                               <p>{service.service_description}</p>
                             </div>
@@ -319,6 +312,7 @@ function RiyadhForm({ color }) {
                         </div>
                         <div className="packagePrice">
                           <p className="price p-3 text-[15px]">
+                            {service.deliveryType && `${service.deliveryType} -`}
                             Price: {service.service_price} SAR
                             {service.timeMin ? "/" : ""} {service.timeMin}
                           </p>
